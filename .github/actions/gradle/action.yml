@@ -59,7 +59,6 @@ runs:
       with:
         distribution: 'temurin'
         java-version: ${{ inputs.java_version }}
-        cache: gradle
 
     - name: Setup gradle
       uses: gradle/actions/setup-gradle@v3
