@@ -1,0 +1,38 @@
+name: Gradle CI Workflow
+
+on: [push]
+
+env:
+  DOCKER_IMAGE_NAME: ""
+  SONAR_ORGANIZATION: "geoderp"
+  SONAR_PROJECT_KEY: "GeoDerp_java-template"
+  GRADLE_APP_SOURCE_DIR: "."
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Custom Gradle action
+      uses: ./.github/actions/gradle
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        gitleaks_token: ${{ secrets.GITLEAKS_TOKEN }}
+        java_version: 17
+        sonar_token: ${{ secrets.SONAR_TOKEN }}
+        sonar_args: >
+          -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.host.url=https://sonarcloud.io
+        docker_image_name: ${{ env.DOCKER_IMAGE_NAME || github.event.repository.name }}
+        dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+        dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+        source_dir: ${{ env.GRADLE_APP_SOURCE_DIR }}
