@@ -1,48 +1,56 @@
-FROM registry.access.redhat.com/ubi9/ubi:latest
+FROM registry.access.redhat.com/ubi9/ubi:latest AS base
 
-RUN dnf update -y; \
+
+ENV container=oci
+ENV USER=default
+
+USER root
+
+# Check for package update
+RUN dnf -y update-minimal --security --sec-severity=Important --sec-severity=Critical && \
 # Install git, nano & java 
-dnf install git nano java-21-openjdk-devel -y; \
-# Install nodejs for SonarQube 
-dnf install nodejs -y; \
+dnf install git nano java-21-openjdk -y; \
 # clear cache
-rm -rf /var/cache
+dnf clean all
 
-# Install Trivy 
-RUN <<EOF cat >> /etc/yum.repos.d/trivy.repo
-[trivy]
-name=Trivy repository
-baseurl=https://aquasecurity.github.io/trivy-repo/rpm/releases/\$basearch/
-gpgcheck=1
-enabled=1
-gpgkey=https://aquasecurity.github.io/trivy-repo/rpm/public.key
-EOF
-RUN dnf update -y; dnf install trivy -y; rm -rf /var/cache
+# Dev target
+FROM base AS dev
+COPY .devcontainer/devtools.sh /tmp/devtools.sh
+RUN  /tmp/devtools.sh
+USER default
 
-
-# OPTIONAL DEPLOYMENT EXAMPLE:
+# DEPLOYMENT EXAMPLE:
 #-----------------------------
 
+# Prod target
+FROM base
+
 ## Install tomcat server (EXAMPLE)
-# RUN wget https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.5/bin/apache-tomcat-11.0.5.tar.gz
-# RUN tar xvf apache-tomcat-*.tar.gz
-# RUN mv apache-tomcat-11.0.5 /usr/local/tomcat11/
-# RUN <<EOF cat >> /usr/local/tomcat11/conf/tomcat-users.xml
-#   <tomcat-users>
-#       <role rolename="manager-gui"/>
-#       <role rolename="admin-gui"/>
-#       <user username="podman" password="podman" roles="manager-gui,admin-gui"/>
-#   </tomcat-users>
-# EOF
+ADD https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.5/bin/apache-tomcat-11.0.5.tar.gz apache-tomcat-11.0.5.tar.gz
+RUN tar xvf apache-tomcat-*.tar.gz; \
+mv apache-tomcat-11.0.5 /usr/local/tomcat11/; \
+<<EOF cat >> /usr/local/tomcat11/conf/tomcat-users.xml
+  <tomcat-users>
+      <role rolename="manager-gui"/>
+      <role rolename="admin-gui"/>
+      <user username="default" password="default" roles="manager-gui,admin-gui"/>
+  </tomcat-users>
+EOF
 
 ## Make App folder, copy project into container
-# WORKDIR /app
-# COPY . .
+WORKDIR /app
+## REPLACE: replace this COPY statement with project specific files/folders
+COPY . . 
 
 ## Install project requirements, build project
-# RUN ./gradlew clean build
-# RUN cp /build/libs/*.war /usr/local/tomcat11/webapps/
+RUN ./gradlew clean build; \
+cp /build/libs/*.war /usr/local/tomcat11/webapps/
+
+## clarify permissions
+RUN chown -R default:0 /app && \
+    chmod -R g=u /app
 
 ## Expose port and run app
-# EXPOSE 8080
-# CMD [ "/usr/local/tomcat11/bin/startup.sh"  ]
+EXPOSE 8080
+USER default
+CMD [ "/usr/local/tomcat11/bin/startup.sh"  ]
