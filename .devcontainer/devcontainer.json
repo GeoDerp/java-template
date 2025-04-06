@@ -3,7 +3,8 @@
 	"name": "java-maven-devcontainer",
 	"build": {
 		"dockerfile": "../Dockerfile",
-		"context": "../"
+		"context": "../",
+		"target": "dev"
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {}
@@ -17,8 +18,7 @@
 		"--userns=keep-id",
 		"--pid=host"
 	],
-	"remoteUser": "root",
-	"containerUser": "root",
+
 
 	"customizations": {
 		// Configure properties specific to VS Code.
@@ -29,18 +29,29 @@
 			"vscjava.vscode-java-pack",
 			"vscjava.vscode-java-test",
 			"vscjava.vscode-java-dependency",
-			"SonarSource.sonarlint-vscode",
-			"AquaSecurityOfficial.trivy-vulnerability-scanner"
+			// optional
+			"ms-azuretools.vscode-docker",
+			"Semgrep.semgrep",
+			"AquaSecurityOfficial.trivy-vulnerability-scanner",
+			"GitHub.vscode-github-actions",
+			"eamodio.gitlens",
+			"redhat.vscode-yaml",
+			"redhat.vscode-xml",
+			"ecmel.vscode-html-css",
+			"bierner.markdown-mermaid",
+			"esbenp.prettier-vscode",
+			"mechatroner.rainbow-csv",
+			"editorconfig.editorconfig"
 		],
 		  "settings": {
 			"[java]": {
-			  "editor.formatOnSave": true,
-			  "editor.codeActionsOnSave": {
-				"source.fixAll": "explicit",
-				"source.organizeImports": "explicit"
-			  },
-			  "editor.defaultFormatter": "vscjava.vscode-maven"
-			}
+			  "editor.defaultFormatter": "vscjava.vscode-maven",
+			},
+			 "editor.tabSize": 4,
+			 "workbench.tree.indent": 14,
+			 "trivy.offlineScan": true
+			 //"files.autoSaveWhenNoErrors": true,
+			 //"files.autoSaveWorkspaceFilesOnly": true
 		  }
 		}
 	  }

@@ -8,7 +8,7 @@
   <groupId>com.example</groupId>
   <artifactId>java-template</artifactId>
   <version>1.0.0</version>
-
+  <packaging>war</packaging>
   <name>java-template</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
@@ -21,12 +21,19 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
   </properties>
 
+
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <version>5.10.2</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>5.0.0</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -39,6 +46,11 @@
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.4.1</version>
+        </plugin>
+        <!-- Enable building as a .war file with `mvn package` -->
+        <plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>3.3.1</version>
         </plugin>
         <!-- default lifecycle, jar packaging: see
         https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
@@ -78,5 +90,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <finalName>${project.artifactId}</finalName>
   </build>
 </project>
