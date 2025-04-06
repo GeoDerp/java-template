@@ -1,4 +1,37 @@
-ps:
+name: Gradle CI
+description: 'Builds, tests, and deploys a Gradle application'
+
+inputs:
+  github_token:
+    description: 'Automatically created token. Set this to the GITHUB_TOKEN secret'
+    required: true
+  gitleaks_token:
+    description: 'Organisational token for Gitleaks'
+    required: false # only required for Organizations, not personal accounts
+  java_version:
+    description: 'Java Version'
+    required: true
+  docker_image_name:
+    description: 'Docker image name'
+    required: true
+  dockerhub_username:
+    description: 'Dockerhub username'
+    required: false
+  dockerhub_token:
+    description: 'Dockerhub Token'
+    required: false
+  source_dir:
+    description: 'Source directory for the Gradle application'
+    required: true
+    default: '.'
+
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+steps:
   - name: Extract branch name
     id: branch-names
     shell: bash
